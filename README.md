@@ -5,6 +5,8 @@ Provides programmatic access to 2d visuals including bounding boxes, health bars
 
 Authored by tul (@lutyeh)
 
+<img width="2559" height="817" alt="image" src="https://github.com/user-attachments/assets/5288be3f-8208-4815-8ecc-055ace7a5d5a" />
+
 # 📦 Installation
 To load the library into your script:
 ```lua

@@ -9,25 +9,27 @@
 
 -- // table
 
-local settings = getgenv().settings or {
-    box = {
-        enabled = true,
-        fill = Color3.new(1, 1, 1),
-        outline = Color3.new(0, 0, 0),
-    },
-
-    healthbar = {
-        enabled = true,
-        fill = Color3.new(0, 1, 0),
-        outline = Color3.new(0, 0, 0),
-    },
-
-    name = {
-        enabled = true,
-        fill = Color3.new(1, 1, 1),
-        size = 13,
-    },
-}
+local settings = getgenv().settings
+if not settings then
+    settings = {
+        box = {
+            enabled = true,
+            fill = Color3.new(1,1,1),
+            outline = Color3.new(0,0,0),
+        },
+        healthbar = {
+            enabled = true,
+            fill = Color3.new(0,1,0),
+            outline = Color3.new(0,0,0),
+        },
+        name = {
+            enabled = true,
+            fill = Color3.new(1,1,1),
+            size = 13,
+        },
+    }
+    getgenv().settings = settings
+end
 
 local esp = {}
 

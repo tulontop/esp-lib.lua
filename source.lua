@@ -280,4 +280,8 @@ function espfunctions.add_name(instance)
     end)
 end
 
-return espfunctions
+for k, v in pairs(espfunctions) do
+    esplib[k] = v
+end
+
+return esplib

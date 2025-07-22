@@ -280,4 +280,4 @@ function esplib.functions.add_name(instance)
     end)
 end
 
-return esplib.functions
+return esplib

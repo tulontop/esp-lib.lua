@@ -9,9 +9,9 @@
 
 -- // table
 
-local settings = getgenv().settings
-if not settings then
-    settings = {
+local esplib = getgenv().esplib
+if not esplib then
+    esplib = {
         box = {
             enabled = true,
             fill = Color3.new(1,1,1),
@@ -28,7 +28,7 @@ if not settings then
             size = 13,
         },
     }
-    getgenv().settings = settings
+    getgenv().esplib = esplib
 end
 
 local esp = {}
@@ -106,13 +106,13 @@ function esp.add_box(instance)
             end
         end
 
-        if settings.box.enabled and onscreen then
-            outline.Color = settings.box.outline
+        if esplib.box.enabled and onscreen then
+            outline.Color = esplib.box.outline
             outline.Position = min
             outline.Size = max - min
             outline.Visible = true
 
-            fill.Color = settings.box.fill
+            fill.Color = esplib.box.fill
             fill.Position = min
             fill.Size = max - min
             fill.Visible = true
@@ -171,7 +171,7 @@ function esp.add_healthbar(instance)
             end
         end
 
-        if not settings.healthbar.enabled or not onscreen then
+        if not esplib.healthbar.enabled or not onscreen then
             outline.Visible = false
             fill.Visible = false
             return
@@ -190,12 +190,12 @@ function esp.add_healthbar(instance)
         local health = math.clamp(humanoid.Health / humanoid.MaxHealth, 0, 1)
         local fillheight = height * health
 
-        outline.Color = settings.healthbar.outline
+        outline.Color = esplib.healthbar.outline
         outline.Position = Vector2.new(x, y)
         outline.Size = Vector2.new(1 + 2 * padding, height + 2 * padding)
         outline.Visible = true
 
-        fill.Color = settings.healthbar.fill
+        fill.Color = esplib.healthbar.fill
         fill.Position = Vector2.new(x + padding, y + (height + padding) - fillheight)
         fill.Size = Vector2.new(1, fillheight)
         fill.Visible = true
@@ -266,13 +266,13 @@ function esp.add_name(instance)
             end
         end
 
-        if settings.name.enabled and onscreen then
+        if esplib.name.enabled and onscreen then
             local centerX = (min.X + max.X) / 2
             local topY = min.Y
             text.Text = instance.Name
             text.Position = Vector2.new(centerX, topY - text.Size - 3)
-            text.Color = settings.name.fill
-            text.Size = settings.name.size
+            text.Color = esplib.name.fill
+            text.Size = esplib.name.size
             text.Visible = true
         else
             text.Visible = false

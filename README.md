@@ -126,7 +126,7 @@ for _, coin in ipairs(game.Workspace.Coins) do
 end
 ```
 
-# ⚙️ Notes
+# 📝 Notes
 Fully made with drawing.
 
 All functions take these classes: Model / Part / BasePart.

@@ -7,11 +7,15 @@
 
 ]]
 
+-- // table
+
+local esp = {}
+
 -- // services
 local run_service = game:GetService("RunService")
 
 -- // functions
-function add_box(instance)
+function esp.add_box(instance)
     local outline = Drawing.new("Square")
     outline.Thickness = 3
     outline.Filled = false
@@ -97,7 +101,7 @@ function add_box(instance)
     end)
 end
 
-function add_healthbar(instance)
+function esp.add_healthbar(instance)
     local outline = Drawing.new("Square")
     outline.Thickness = 1
     outline.Filled = true
@@ -176,7 +180,7 @@ function add_healthbar(instance)
     end)
 end
 
-function add_name(instance)
+function esp.add_name(instance)
     local text = Drawing.new("Text")
     text.Center = true
     text.Outline = true
@@ -253,3 +257,5 @@ function add_name(instance)
         end
     end)
 end
+
+return esp

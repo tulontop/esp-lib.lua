@@ -27,17 +27,17 @@ if not esplib then
             fill = Color3.new(1,1,1),
             size = 13,
         },
+
+        functions = {},
     }
     getgenv().esplib = esplib
 end
-
-local esp = {}
 
 -- // services
 local run_service = game:GetService("RunService")
 
 -- // functions
-function esp.add_box(instance)
+function esplib.functions.add_box(instance)
     local outline = Drawing.new("Square")
     outline.Thickness = 3
     outline.Filled = false
@@ -123,7 +123,7 @@ function esp.add_box(instance)
     end)
 end
 
-function esp.add_healthbar(instance)
+function esplib.functions.add_healthbar(instance)
     local outline = Drawing.new("Square")
     outline.Thickness = 1
     outline.Filled = true
@@ -202,7 +202,7 @@ function esp.add_healthbar(instance)
     end)
 end
 
-function esp.add_name(instance)
+function esplib.functions.add_name(instance)
     local text = Drawing.new("Text")
     text.Center = true
     text.Outline = true

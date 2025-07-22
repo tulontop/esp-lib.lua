@@ -117,13 +117,15 @@ end)
 
 
 ```lua
--- // coin esp
-local esplib = loadstring(game:HttpGet('https://raw.githubusercontent.com/tulontop/esp-lib.lua/refs/heads/main/source.lua'))()
+-- // mm2 coin esp
+local esplib = loadstring(game:HttpGet("https://raw.githubusercontent.com/tulontop/esp-lib.lua/refs/heads/main/source.lua"))()
 
-for _, coin in ipairs(game.Workspace.Coins) do
-    esplib.add_box(coin)
-    esplib.add_name(coin)
-end
+game.Workspace.DescendantAdded:Connect(function(coin)
+    if coin.Name == "Coin_Server" then
+        esplib.add_box(coin)
+        esplib.add_name(coin)
+    end
+end)
 ```
 
 # 📝 Notes

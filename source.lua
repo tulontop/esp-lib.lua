@@ -2,7 +2,7 @@
 
     esp-lib.lua
     A library for creating esp visuals in roblox using drawing.
-    Provides functions to add boxes, health bars, and names to instances.
+    Provides functions to add boxes, health bars, names and distances to instances.
     Written by tul (@.lutyeh).
 
 ]]
@@ -23,6 +23,11 @@ if not esplib then
             outline = Color3.new(0,0,0),
         },
         name = {
+            enabled = true,
+            fill = Color3.new(1,1,1),
+            size = 13,
+        },
+        distance = {
             enabled = true,
             fill = Color3.new(1,1,1),
             size = 13,
@@ -273,6 +278,84 @@ function espfunctions.add_name(instance)
             text.Position = Vector2.new(centerX, topY - text.Size - 3)
             text.Color = esplib.name.fill
             text.Size = esplib.name.size
+            text.Visible = true
+        else
+            text.Visible = false
+        end
+    end)
+end
+
+function espfunctions.add_distance(instance)
+    local text = Drawing.new("Text")
+    text.Center = true
+    text.Outline = true
+    text.Font = 1
+    text.Transparency = 1
+
+    local conn
+    conn = run_service.RenderStepped:Connect(function()
+        if not instance or not instance.Parent then
+            conn:Disconnect()
+            text:Remove()
+            return
+        end
+
+        local min, max = Vector2.new(math.huge, math.huge), Vector2.new(-math.huge, -math.huge)
+        local onscreen = false
+
+        if instance:IsA("Model") then
+            for _, p in ipairs(instance:GetChildren()) do
+                if p:IsA("BasePart") then
+                    local pos, visible = workspace.CurrentCamera:WorldToViewportPoint(p.Position)
+                    if visible then
+                        local v2 = Vector2.new(pos.X, pos.Y)
+                        min = min:Min(v2)
+                        max = max:Max(v2)
+                        onscreen = true
+                    end
+                elseif p:IsA("Accessory") then
+                    local handle = p:FindFirstChild("Handle")
+                    if handle and handle:IsA("BasePart") then
+                        local pos, visible = workspace.CurrentCamera:WorldToViewportPoint(handle.Position)
+                        if visible then
+                            local v2 = Vector2.new(pos.X, pos.Y)
+                            min = min:Min(v2)
+                            max = max:Max(v2)
+                            onscreen = true
+                        end
+                    end
+                end
+            end
+        elseif instance:IsA("BasePart") then
+            local size = instance.Size / 2
+            local cf = instance.CFrame
+            for _, offset in ipairs({
+                Vector3.new( size.X,  size.Y,  size.Z),
+                Vector3.new(-size.X,  size.Y,  size.Z),
+                Vector3.new( size.X, -size.Y,  size.Z),
+                Vector3.new(-size.X, -size.Y,  size.Z),
+                Vector3.new( size.X,  size.Y, -size.Z),
+                Vector3.new(-size.X,  size.Y, -size.Z),
+                Vector3.new( size.X, -size.Y, -size.Z),
+                Vector3.new(-size.X, -size.Y, -size.Z),
+            }) do
+                local pos, visible = workspace.CurrentCamera:WorldToViewportPoint(cf:PointToWorldSpace(offset))
+                if visible then
+                    local v2 = Vector2.new(pos.X, pos.Y)
+                    min = min:Min(v2)
+                    max = max:Max(v2)
+                    onscreen = true
+                end
+            end
+        end
+
+        if esplib.distance.enabled and onscreen then
+            local centerX = (min.X + max.X) / 2
+            local topY = max.Y
+            text.Text = instance.Name
+            text.Position = Vector2.new(centerX, topY - text.Size - 3)
+            text.Color = esplib.distance.fill
+            text.Size = esplib.distance.size
             text.Visible = true
         else
             text.Visible = false

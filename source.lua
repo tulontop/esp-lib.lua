@@ -351,9 +351,10 @@ function espfunctions.add_distance(instance)
 
         if esplib.distance.enabled and onscreen then
             local centerX = (min.X + max.X) / 2
-            local topY = max.Y
-            text.Text = instance.Name
-            text.Position = Vector2.new(centerX, topY - text.Size - 3)
+            local bottomY = max.Y
+            local distance = (instance:GetPivot().Position - workspace.CurrentCamera.CFrame.Position).Magnitude
+            text.Text = tostring(math.floor(distance)) .. "m"
+            text.Position = Vector2.new(centerX, bottomY + 3)
             text.Color = esplib.distance.fill
             text.Size = esplib.distance.size
             text.Visible = true

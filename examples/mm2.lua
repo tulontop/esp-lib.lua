@@ -6,5 +6,6 @@ game.Workspace.DescendantAdded:Connect(function(coin)
     if coin.Name == "Coin_Server" then
         esplib.add_box(coin)
         esplib.add_name(coin)
+        esplib.add_distance(coin)
     end
 end)

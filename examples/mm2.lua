@@ -7,5 +7,6 @@ game.Workspace.DescendantAdded:Connect(function(coin)
         esplib.add_box(coin)
         esplib.add_name(coin)
         esplib.add_distance(coin)
+        esplib.add_tracer(coin)
     end
 end)

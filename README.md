@@ -1,7 +1,7 @@
 # esp-lib.lua
 A lightweight esp library for roblox using the drawing api.
 
-Provides programmatic access to 2d visuals including bounding boxes, health bars, name tags and distances for in-game instances.
+Provides programmatic access to 2d visuals including bounding boxes, health bars, name tags, distances and tracers for in-game instances.
 
 Authored by tul (@.lutyeh)
 
@@ -32,6 +32,16 @@ esplib.add_name(instance: Instance)
 Renders a name label above the instance’s head.
 Defaults to instance.Name.
 
+```lua
+esplib.add_distance(instance: Instance)
+```
+Renders a distance label under the instance.
+
+```lua
+esplib.add_tracer(instance: Instance)
+```
+Creates a tracer to the instances main part.
+
 # ⚙️ Settings Table
 
 ```lua
@@ -56,6 +66,12 @@ getgenv().esplib = {
         fill = Color3.new(1,1,1),
         size = 13,
     },
+    tracer = {
+        enabled = true,
+        fill = Color3.new(1,1,1),
+        outline = Color3.new(0,0,0),
+        from = "mouse", -- mouse, head, top, bottom, center
+    }
 }
 ```
 (Optional) Allows you to customize the esp easily in real time. Add this ontop of your code if wanted.
@@ -70,6 +86,7 @@ esplib.add_box(game.Players.LocalPlayer.Character)
 esplib.add_healthbar(game.Players.LocalPlayer.Character)
 esplib.add_name(game.Players.LocalPlayer.Character)
 esplib.add_distance(game.Players.LocalPlayer.Character)
+esplib.add_tracer(game.Players.LocalPlayer.Character)
 ```
 
 ```lua
@@ -95,6 +112,12 @@ getgenv().esplib = {
         fill = Color3.new(1,1,1),
         size = 13,
     },
+    tracer = {
+        enabled = true,
+        fill = Color3.new(1,1,1),
+        outline = Color3.new(0,0,0),
+        from = "mouse", -- mouse, head, top, bottom, center
+    }
 }
 
 local esplib = loadstring(game:HttpGet('https://raw.githubusercontent.com/tulontop/esp-lib.lua/refs/heads/main/source.lua'))()
@@ -106,6 +129,7 @@ for _, plr in ipairs(game.Players:GetPlayers()) do
             esplib.add_healthbar(plr.Character)
             esplib.add_name(plr.Character)
             esplib.add_distance(plr.Character)
+            esplib.add_tracer(plr.Character)
         end
 
         plr.CharacterAdded:Connect(function(character)
@@ -113,6 +137,7 @@ for _, plr in ipairs(game.Players:GetPlayers()) do
             esplib.add_healthbar(character)
             esplib.add_name(character)
             esplib.add_distance(character)
+            esplib.add_tracer(character)
         end)
     end
 end
@@ -124,6 +149,7 @@ game.Players.PlayerAdded:Connect(function(plr)
             esplib.add_healthbar(character)
             esplib.add_name(character)
             esplib.add_distance(character)
+            esplib.add_tracer(character)
         end)
     end
 end)
@@ -139,6 +165,7 @@ game.Workspace.DescendantAdded:Connect(function(coin)
         esplib.add_box(coin)
         esplib.add_name(coin)
         esplib.add_distance(coin)
+        esplib.add_tracer(coin)
     end
 end)
 ```

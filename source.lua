@@ -32,6 +32,12 @@ if not esplib then
             fill = Color3.new(1,1,1),
             size = 13,
         },
+        tracer = {
+            enabled = true,
+            fill = Color3.new(1,1,1),
+            outline = Color3.new(0,0,0),
+            from = "mouse", -- mouse, head, top, bottom, center
+        }
     }
     getgenv().esplib = esplib
 end
@@ -40,6 +46,9 @@ local espfunctions = {}
 
 -- // services
 local run_service = game:GetService("RunService")
+local players = game:GetService("Players")
+local user_input_service = game:GetService("UserInputService")
+local camera = workspace.CurrentCamera
 
 -- // functions
 function espfunctions.add_box(instance)
@@ -68,7 +77,7 @@ function espfunctions.add_box(instance)
         if instance:IsA("Model") then
             for _, p in ipairs(instance:GetChildren()) do
                 if p:IsA("BasePart") then
-                    local pos, visible = workspace.CurrentCamera:WorldToViewportPoint(p.Position)
+                    local pos, visible = camera:WorldToViewportPoint(p.Position)
                     if visible then
                         local v2 = Vector2.new(pos.X, pos.Y)
                         min = min:Min(v2)
@@ -78,7 +87,7 @@ function espfunctions.add_box(instance)
                 elseif p:IsA("Accessory") then
                     local handle = p:FindFirstChild("Handle")
                     if handle and handle:IsA("BasePart") then
-                        local pos, visible = workspace.CurrentCamera:WorldToViewportPoint(handle.Position)
+                        local pos, visible = camera:WorldToViewportPoint(handle.Position)
                         if visible then
                             local v2 = Vector2.new(pos.X, pos.Y)
                             min = min:Min(v2)
@@ -101,7 +110,7 @@ function espfunctions.add_box(instance)
                 Vector3.new( size.X, -size.Y, -size.Z),
                 Vector3.new(-size.X, -size.Y, -size.Z),
             }) do
-                local pos, visible = workspace.CurrentCamera:WorldToViewportPoint(cf:PointToWorldSpace(offset))
+                local pos, visible = camera:WorldToViewportPoint(cf:PointToWorldSpace(offset))
                 if visible then
                     local v2 = Vector2.new(pos.X, pos.Y)
                     min = min:Min(v2)
@@ -154,7 +163,7 @@ function espfunctions.add_healthbar(instance)
         if instance:IsA("Model") then
             for _, p in ipairs(instance:GetChildren()) do
                 if p:IsA("BasePart") then
-                    local pos, visible = workspace.CurrentCamera:WorldToViewportPoint(p.Position)
+                    local pos, visible = camera:WorldToViewportPoint(p.Position)
                     if visible then
                         local v2 = Vector2.new(pos.X, pos.Y)
                         min = min:Min(v2)
@@ -164,7 +173,7 @@ function espfunctions.add_healthbar(instance)
                 elseif p:IsA("Accessory") then
                     local handle = p:FindFirstChild("Handle")
                     if handle and handle:IsA("BasePart") then
-                        local pos, visible = workspace.CurrentCamera:WorldToViewportPoint(handle.Position)
+                        local pos, visible = camera:WorldToViewportPoint(handle.Position)
                         if visible then
                             local v2 = Vector2.new(pos.X, pos.Y)
                             min = min:Min(v2)
@@ -228,7 +237,7 @@ function espfunctions.add_name(instance)
         if instance:IsA("Model") then
             for _, p in ipairs(instance:GetChildren()) do
                 if p:IsA("BasePart") then
-                    local pos, visible = workspace.CurrentCamera:WorldToViewportPoint(p.Position)
+                    local pos, visible = camera:WorldToViewportPoint(p.Position)
                     if visible then
                         local v2 = Vector2.new(pos.X, pos.Y)
                         min = min:Min(v2)
@@ -238,7 +247,7 @@ function espfunctions.add_name(instance)
                 elseif p:IsA("Accessory") then
                     local handle = p:FindFirstChild("Handle")
                     if handle and handle:IsA("BasePart") then
-                        local pos, visible = workspace.CurrentCamera:WorldToViewportPoint(handle.Position)
+                        local pos, visible = camera:WorldToViewportPoint(handle.Position)
                         if visible then
                             local v2 = Vector2.new(pos.X, pos.Y)
                             min = min:Min(v2)
@@ -261,7 +270,7 @@ function espfunctions.add_name(instance)
                 Vector3.new( size.X, -size.Y, -size.Z),
                 Vector3.new(-size.X, -size.Y, -size.Z),
             }) do
-                local pos, visible = workspace.CurrentCamera:WorldToViewportPoint(cf:PointToWorldSpace(offset))
+                local pos, visible = camera:WorldToViewportPoint(cf:PointToWorldSpace(offset))
                 if visible then
                     local v2 = Vector2.new(pos.X, pos.Y)
                     min = min:Min(v2)
@@ -306,7 +315,7 @@ function espfunctions.add_distance(instance)
         if instance:IsA("Model") then
             for _, p in ipairs(instance:GetChildren()) do
                 if p:IsA("BasePart") then
-                    local pos, visible = workspace.CurrentCamera:WorldToViewportPoint(p.Position)
+                    local pos, visible = camera:WorldToViewportPoint(p.Position)
                     if visible then
                         local v2 = Vector2.new(pos.X, pos.Y)
                         min = min:Min(v2)
@@ -316,7 +325,7 @@ function espfunctions.add_distance(instance)
                 elseif p:IsA("Accessory") then
                     local handle = p:FindFirstChild("Handle")
                     if handle and handle:IsA("BasePart") then
-                        local pos, visible = workspace.CurrentCamera:WorldToViewportPoint(handle.Position)
+                        local pos, visible = camera:WorldToViewportPoint(handle.Position)
                         if visible then
                             local v2 = Vector2.new(pos.X, pos.Y)
                             min = min:Min(v2)
@@ -339,7 +348,7 @@ function espfunctions.add_distance(instance)
                 Vector3.new( size.X, -size.Y, -size.Z),
                 Vector3.new(-size.X, -size.Y, -size.Z),
             }) do
-                local pos, visible = workspace.CurrentCamera:WorldToViewportPoint(cf:PointToWorldSpace(offset))
+                local pos, visible = camera:WorldToViewportPoint(cf:PointToWorldSpace(offset))
                 if visible then
                     local v2 = Vector2.new(pos.X, pos.Y)
                     min = min:Min(v2)
@@ -352,7 +361,7 @@ function espfunctions.add_distance(instance)
         if esplib.distance.enabled and onscreen then
             local centerX = (min.X + max.X) / 2
             local bottomY = max.Y
-            local distance = (instance:GetPivot().Position - workspace.CurrentCamera.CFrame.Position).Magnitude
+            local distance = (instance:GetPivot().Position - camera.CFrame.Position).Magnitude
             text.Text = tostring(math.floor(distance)) .. "m"
             text.Position = Vector2.new(centerX, bottomY + 3)
             text.Color = esplib.distance.fill
@@ -361,6 +370,79 @@ function espfunctions.add_distance(instance)
         else
             text.Visible = false
         end
+    end)
+end
+
+function espfunctions.add_tracer(instance)
+    local outline = Drawing.new("Line")
+    outline.Thickness = 3
+    outline.Transparency = 1
+
+    local fill = Drawing.new("Line")
+    fill.Thickness = 1
+    fill.Transparency = 1
+
+    local conn
+    conn = run_service.RenderStepped:Connect(function()
+        if not instance or not instance.Parent then
+            conn:Disconnect()
+            outline:Remove()
+            fill:Remove()
+            return
+        end
+
+        local onscreen = false
+
+        if instance:IsA("Model") then
+            if instance.PrimaryPart then
+                local pos, visible = camera:WorldToViewportPoint(instance.PrimaryPart.Position)
+                if visible then
+                    local v2 = Vector2.new(pos.X, pos.Y)
+                    outline.To = v2
+                    fill.To = v2
+                    onscreen = true
+                end
+            end
+        elseif instance:IsA("BasePart") then
+            local pos, visible = camera:WorldToViewportPoint(instance.Position)
+            if visible then
+                local v2 = Vector2.new(pos.X, pos.Y)
+                outline.To = v2
+                fill.To = v2
+                onscreen = true
+            end
+        end
+
+        if esplib.tracer.enabled and onscreen then
+            if esplib.tracer.from == "mouse" then
+                outline.From = Vector2.new(user_input_service:GetMouseLocation().X, user_input_service:GetMouseLocation().Y)
+                fill.From = Vector2.new(user_input_service:GetMouseLocation().X, user_input_service:GetMouseLocation().Y)
+            elseif esplib.tracer.from == "head" then
+                if players.LocalPlayer.Character and players.LocalPlayer.Character:FindFirstChild("Head") then
+                    local pos, visible = camera:WorldToViewportPoint(players.LocalPlayer.Character.Head.Position)
+                    outline.From = Vector2.new(pos.X, pos.Y)
+                    fill.From = Vector2.new(pos.X, pos.Y)
+                end
+            elseif esplib.tracer.from == "top" then
+                outline.From = Vector2.new(camera.ViewportSize.X / 2, 0)
+                fill.From = Vector2.new(camera.ViewportSize.X / 2, 0)
+            elseif esplib.tracer.from == "bottom" then
+                outline.From = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y)
+                fill.From = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y)
+            elseif esplib.tracer.from == "center" then
+                outline.From = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
+                fill.From = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
+            end
+
+            outline.Color = esplib.tracer.outline
+            fill.Color = esplib.tracer.fill
+            outline.Visible = true
+            fill.Visible = true
+        else
+            outline.Visible = false
+            fill.Visible = false
+        end
+
     end)
 end
 

@@ -82,6 +82,4 @@ Find pre-made scripts in the examples folder.
 # 📝 Notes
 Fully made with drawing.
 
-All functions take these classes: Model / Part / BasePart.
-
 This project is fully open source, feel free to modify it and use it on your own project.

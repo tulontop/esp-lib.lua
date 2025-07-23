@@ -1,7 +1,7 @@
 # esp-lib.lua
 A lightweight esp library for roblox using the drawing api.
 
-Provides programmatic access to 2d visuals including bounding boxes, health bars, and name tags for in-game instances.
+Provides programmatic access to 2d visuals including bounding boxes, health bars, name tags and distances for in-game instances.
 
 Authored by tul (@.lutyeh)
 
@@ -51,6 +51,11 @@ getgenv().esplib = {
         fill = Color3.new(1,1,1),
         size = 13,
     },
+    distance = {
+        enabled = true,
+        fill = Color3.new(1,1,1),
+        size = 13,
+    },
 }
 ```
 (Optional) Allows you to customize the esp easily in real time. Add this ontop of your code if wanted.
@@ -64,6 +69,7 @@ local esplib = loadstring(game:HttpGet('https://raw.githubusercontent.com/tulont
 esplib.add_box(game.Players.LocalPlayer.Character)
 esplib.add_healthbar(game.Players.LocalPlayer.Character)
 esplib.add_name(game.Players.LocalPlayer.Character)
+esplib.add_distance(game.Players.LocalPlayer.Character)
 ```
 
 ```lua
@@ -84,6 +90,11 @@ getgenv().esplib = {
         fill = Color3.new(1,1,1),
         size = 13,
     },
+    distance = {
+        enabled = true,
+        fill = Color3.new(1,1,1),
+        size = 13,
+    },
 }
 
 local esplib = loadstring(game:HttpGet('https://raw.githubusercontent.com/tulontop/esp-lib.lua/refs/heads/main/source.lua'))()
@@ -94,12 +105,14 @@ for _, plr in ipairs(game.Players:GetPlayers()) do
             esplib.add_box(plr.Character)
             esplib.add_healthbar(plr.Character)
             esplib.add_name(plr.Character)
+            esplib.add_distance(plr.Character)
         end
 
         plr.CharacterAdded:Connect(function(character)
             esplib.add_box(character)
             esplib.add_healthbar(character)
             esplib.add_name(character)
+            esplib.add_distance(character)
         end)
     end
 end
@@ -110,6 +123,7 @@ game.Players.PlayerAdded:Connect(function(plr)
             esplib.add_box(character)
             esplib.add_healthbar(character)
             esplib.add_name(character)
+            esplib.add_distance(character)
         end)
     end
 end)
@@ -124,6 +138,7 @@ game.Workspace.DescendantAdded:Connect(function(coin)
     if coin.Name == "Coin_Server" then
         esplib.add_box(coin)
         esplib.add_name(coin)
+        esplib.add_distance(coin)
     end
 end)
 ```

@@ -74,7 +74,7 @@ getgenv().esplib = {
     }
 }
 ```
-(Optional) Allows you to customize the esp easily in real time. Add this ontop of your code if wanted.
+(Optional) Allows you to customize the esp easily in real time. Add this on top of your code if wanted.
 
 # ▶️ Examples
 Find pre-made scripts in the examples folder.

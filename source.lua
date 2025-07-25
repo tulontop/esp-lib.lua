@@ -296,7 +296,11 @@ run_service.RenderStepped:Connect(function()
                 local text = data.distance
                 local center_x = (min.X + max.X) / 2
                 local y = max.Y + 5
-                local dist = (camera.CFrame.Position - instance.PrimaryPart.Position).Magnitude
+                if instance:IsA("Model") then
+                    local dist = (camera.CFrame.Position - instance.PrimaryPart.Position).Magnitude
+                else
+                    local dist = (camera.CFrame.Position - instance.Position).Magnitude
+                end
                 text.Text = tostring(math.floor(dist)) .. "m"
                 text.Size = esplib.distance.size
                 text.Color = esplib.distance.fill

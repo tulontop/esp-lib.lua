@@ -51,6 +51,7 @@ Creates a tracer to the instances main part.
 getgenv().esplib = {
     box = {
         enabled = true,
+        type = "normal", -- normal, corner
         fill = Color3.new(1,1,1),
         outline = Color3.new(0,0,0),
     },
@@ -74,7 +75,8 @@ getgenv().esplib = {
         fill = Color3.new(1,1,1),
         outline = Color3.new(0,0,0),
         from = "mouse", -- mouse, head, top, bottom, center
-    }
+    },
+    refresh_rate = 240,
 }
 ```
 (Optional) Allows you to customize the esp easily in real time. Add this on top of your code if wanted.

@@ -2,8 +2,7 @@
 getgenv().esplib = {
     box = {
         enabled = true,
-        type = "normal", -- normal, corner
-        fill = Color3.new(1,0,0),
+        fill = Color3.new(1,1,1),
         outline = Color3.new(0,0,0),
     },
     healthbar = {
@@ -27,7 +26,6 @@ getgenv().esplib = {
         outline = Color3.new(0,0,0),
         from = "mouse", -- mouse, head, top, bottom, center
     },
-    refresh_rate = 240,
 }
 
 local esplib = loadstring(game:HttpGet('https://raw.githubusercontent.com/tulontop/esp-lib.lua/refs/heads/main/source.lua'))()

@@ -13,6 +13,7 @@ if not esplib then
     esplib = {
         box = {
             enabled = true,
+            type = "normal", -- normal, corner
             fill = Color3.new(1,1,1),
             outline = Color3.new(0,0,0),
         },
@@ -35,8 +36,9 @@ if not esplib then
             enabled = true,
             fill = Color3.new(1,1,1),
             outline = Color3.new(0,0,0),
-            from = "mouse",
+            from = "mouse", -- mouse, head, top, bottom, center
         },
+        refresh_rate = 240,
     }
     getgenv().esplib = esplib
 end
@@ -106,22 +108,45 @@ end
 
 function espfunctions.add_box(instance)
     if not instance or espinstances[instance] and espinstances[instance].box then return end
+
+    local box = {}
+
     local outline = Drawing.new("Square")
     outline.Thickness = 3
     outline.Filled = false
     outline.Transparency = 1
+    outline.Visible = false
 
     local fill = Drawing.new("Square")
     fill.Thickness = 1
     fill.Filled = false
     fill.Transparency = 1
+    fill.Visible = false
+
+    box.outline = outline
+    box.fill = fill
+
+    box.corner_fill = {}
+    box.corner_outline = {}
+    for i = 1, 8 do
+        local outline = Drawing.new("Line")
+        outline.Thickness = 3
+        outline.Transparency = 1
+        outline.Visible = false
+
+        local fill = Drawing.new("Line")
+        fill.Thickness = 1
+        fill.Transparency = 1
+        fill.Visible = false
+        table.insert(box.corner_fill, fill)
+
+        table.insert(box.corner_outline, outline)
+    end
 
     espinstances[instance] = espinstances[instance] or {}
-    espinstances[instance].box = {
-        outline = outline,
-        fill = fill,
-    }
+    espinstances[instance].box = box
 end
+
 
 function espfunctions.add_healthbar(instance)
     if not instance or espinstances[instance] and espinstances[instance].healthbar then return end
@@ -183,12 +208,21 @@ function espfunctions.add_tracer(instance)
 end
 
 -- // main thread
+local last_update = 0
 run_service.RenderStepped:Connect(function()
+    local now = os.clock()
+    local interval = 1 / math.clamp(esplib.refresh_rate or 20, 1, 240)
+    if now - last_update < interval then return end
+    last_update = now
+
     for instance, data in pairs(espinstances) do
         if not instance or not instance.Parent then
             if data.box then
                 data.box.outline:Remove()
                 data.box.fill:Remove()
+                for _, line in ipairs(data.box.corners) do
+                    line:Remove()
+                end
             end
             if data.healthbar then
                 data.healthbar.outline:Remove()
@@ -211,22 +245,84 @@ run_service.RenderStepped:Connect(function()
         local min, max, onscreen = get_bounding_box(instance)
 
         if data.box then
-            if esplib.box.enabled and onscreen then
-                local outline, fill = data.box.outline, data.box.fill
-                outline.Color = esplib.box.outline
-                outline.Position = min
-                outline.Size = max - min
-                outline.Visible = true
+            local box = data.box
+            local boxtype = esplib.box.type
 
-                fill.Color = esplib.box.fill
-                fill.Position = min
-                fill.Size = max - min
-                fill.Visible = true
+            if esplib.box.enabled and onscreen then
+                if boxtype == "normal" then
+                    local min, max = min, max
+                    box.outline.Position = min
+                    box.outline.Size = max - min
+                    box.outline.Color = esplib.box.outline
+                    box.outline.Visible = true
+
+                    box.fill.Position = min
+                    box.fill.Size = max - min
+                    box.fill.Color = esplib.box.fill
+                    box.fill.Visible = true
+
+                    for _, line in ipairs(box.corners) do
+                        line.Visible = false
+                    end
+
+                elseif boxtype == "corner" then
+                    local x, y = min.X, min.Y
+                    local w, h = (max - min).X, (max - min).Y
+                    local len = math.min(w, h) * 0.25
+
+                    local fill_lines = box.corner_fill
+                    local outline_lines = box.corner_outline
+                    local fill_color = esplib.box.fill
+                    local outline_color = esplib.box.outline
+
+                    local corners = {
+                        { Vector2.new(x, y), Vector2.new(x + len, y) },
+                        { Vector2.new(x, y), Vector2.new(x, y + len) },
+
+                        { Vector2.new(x + w - len, y), Vector2.new(x + w, y) },
+                        { Vector2.new(x + w, y), Vector2.new(x + w, y + len) },
+
+                        { Vector2.new(x, y + h), Vector2.new(x + len, y + h) },
+                        { Vector2.new(x, y + h - len), Vector2.new(x, y + h) },
+
+                        { Vector2.new(x + w - len, y + h), Vector2.new(x + w, y + h) },
+                        { Vector2.new(x + w, y + h - len), Vector2.new(x + w, y + h) },
+                    }
+
+                    for i = 1, 8 do
+                        local from, to = corners[i][1], corners[i][2]
+
+                        local dir = (to - from).Unit
+                        local oFrom = from - dir
+                        local oTo = to + dir
+
+                        local o = outline_lines[i]
+                        o.From = oFrom
+                        o.To = oTo
+                        o.Color = outline_color
+                        o.Visible = true
+
+                        local f = fill_lines[i]
+                        f.From = from
+                        f.To = to
+                        f.Color = fill_color
+                        f.Visible = true
+                    end
+
+
+                    box.outline.Visible = false
+                    box.fill.Visible = false
+                end
+
             else
-                data.box.outline.Visible = false
-                data.box.fill.Visible = false
+                box.outline.Visible = false
+                box.fill.Visible = false
+                for _, line in ipairs(box.corners) do
+                    line.Visible = false
+                end
             end
         end
+
 
         if data.healthbar then
             local outline, fill = data.healthbar.outline, data.healthbar.fill

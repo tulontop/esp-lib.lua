@@ -35,7 +35,7 @@ if not esplib then
             enabled = true,
             fill = Color3.new(1,1,1),
             outline = Color3.new(0,0,0),
-            from = "mouse",
+            from = "mouse", -- mouse, head, top, bottom, center
         },
     }
     getgenv().esplib = esplib
@@ -206,6 +206,12 @@ run_service.RenderStepped:Connect(function()
             end
             espinstances[instance] = nil
             continue
+        end
+
+        if instance:IsA("Model") then
+            if not instance.PrimaryPart then
+                continue
+            end
         end
 
         local min, max, onscreen = get_bounding_box(instance)

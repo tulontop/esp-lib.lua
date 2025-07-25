@@ -26,7 +26,7 @@ getgenv().esplib = {
         fill = Color3.new(1,1,1),
         outline = Color3.new(0,0,0),
         from = "mouse", -- mouse, head, top, bottom, center
-    }
+    },
     refresh_rate = 240,
 }
 

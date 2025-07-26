@@ -13,6 +13,7 @@ if not esplib then
     esplib = {
         box = {
             enabled = true,
+            type = "normal", -- normal, corner
             fill = Color3.new(1,1,1),
             outline = Color3.new(0,0,0),
         },
@@ -55,33 +56,10 @@ local function get_bounding_box(instance)
     local min, max = Vector2.new(math.huge, math.huge), Vector2.new(-math.huge, -math.huge)
     local onscreen = false
 
-    if instance:IsA("Model") then
-        for _, p in ipairs(instance:GetChildren()) do
-            if p:IsA("BasePart") then
-                local pos, visible = camera:WorldToViewportPoint(p.Position)
-                if visible then
-                    local v2 = Vector2.new(pos.X, pos.Y)
-                    min = min:Min(v2)
-                    max = max:Max(v2)
-                    onscreen = true
-                end
-            elseif p:IsA("Accessory") then
-                local handle = p:FindFirstChild("Handle")
-                if handle and handle:IsA("BasePart") then
-                    local pos, visible = camera:WorldToViewportPoint(handle.Position)
-                    if visible then
-                        local v2 = Vector2.new(pos.X, pos.Y)
-                        min = min:Min(v2)
-                        max = max:Max(v2)
-                        onscreen = true
-                    end
-                end
-            end
-        end
-    elseif instance:IsA("BasePart") then
-        local size = instance.Size / 2
-        local cf = instance.CFrame
-        for _, offset in ipairs({
+    local function process_part(part)
+        local size = part.Size / 2
+        local cf = part.CFrame
+        local corners = {
             Vector3.new( size.X,  size.Y,  size.Z),
             Vector3.new(-size.X,  size.Y,  size.Z),
             Vector3.new( size.X, -size.Y,  size.Z),
@@ -90,7 +68,8 @@ local function get_bounding_box(instance)
             Vector3.new(-size.X,  size.Y, -size.Z),
             Vector3.new( size.X, -size.Y, -size.Z),
             Vector3.new(-size.X, -size.Y, -size.Z),
-        }) do
+        }
+        for _, offset in ipairs(corners) do
             local pos, visible = camera:WorldToViewportPoint(cf:PointToWorldSpace(offset))
             if visible then
                 local v2 = Vector2.new(pos.X, pos.Y)
@@ -101,26 +80,58 @@ local function get_bounding_box(instance)
         end
     end
 
+    if instance:IsA("Model") then
+        for _, obj in ipairs(instance:GetDescendants()) do
+            if obj:IsA("BasePart") then
+                process_part(obj)
+            end
+        end
+    elseif instance:IsA("BasePart") then
+        process_part(instance)
+    end
+
     return min, max, onscreen
 end
 
 function espfunctions.add_box(instance)
     if not instance or espinstances[instance] and espinstances[instance].box then return end
+
+    local box = {}
+
     local outline = Drawing.new("Square")
     outline.Thickness = 3
     outline.Filled = false
     outline.Transparency = 1
+    outline.Visible = false
 
     local fill = Drawing.new("Square")
     fill.Thickness = 1
     fill.Filled = false
     fill.Transparency = 1
+    fill.Visible = false
+
+    box.outline = outline
+    box.fill = fill
+
+    box.corner_fill = {}
+    box.corner_outline = {}
+    for i = 1, 8 do
+        local outline = Drawing.new("Line")
+        outline.Thickness = 3
+        outline.Transparency = 1
+        outline.Visible = false
+
+        local fill = Drawing.new("Line")
+        fill.Thickness = 1
+        fill.Transparency = 1
+        fill.Visible = false
+        table.insert(box.corner_fill, fill)
+
+        table.insert(box.corner_outline, outline)
+    end
 
     espinstances[instance] = espinstances[instance] or {}
-    espinstances[instance].box = {
-        outline = outline,
-        fill = fill,
-    }
+    espinstances[instance].box = box
 end
 
 function espfunctions.add_healthbar(instance)
@@ -189,6 +200,12 @@ run_service.RenderStepped:Connect(function()
             if data.box then
                 data.box.outline:Remove()
                 data.box.fill:Remove()
+                for _, line in ipairs(data.box.corner_fill) do
+                    line:Remove()
+                end
+                for _, line in ipairs(data.box.corner_outline) do
+                    line:Remove()
+                end
             end
             if data.healthbar then
                 data.healthbar.outline:Remove()
@@ -208,29 +225,89 @@ run_service.RenderStepped:Connect(function()
             continue
         end
 
-        if instance:IsA("Model") then
-            if not instance.PrimaryPart then
-                continue
-            end
+        if instance:IsA("Model") and not instance.PrimaryPart then
+            continue
         end
 
         local min, max, onscreen = get_bounding_box(instance)
 
         if data.box then
-            if esplib.box.enabled and onscreen then
-                local outline, fill = data.box.outline, data.box.fill
-                outline.Color = esplib.box.outline
-                outline.Position = min
-                outline.Size = max - min
-                outline.Visible = true
+            local box = data.box
 
-                fill.Color = esplib.box.fill
-                fill.Position = min
-                fill.Size = max - min
-                fill.Visible = true
+            if esplib.box.enabled and onscreen then
+                local x, y = min.X, min.Y
+                local w, h = (max - min).X, (max - min).Y
+                local len = math.min(w, h) * 0.25
+
+                if esplib.box.type == "normal" then
+                    box.outline.Position = min
+                    box.outline.Size = max - min
+                    box.outline.Color = esplib.box.outline
+                    box.outline.Visible = true
+
+                    box.fill.Position = min
+                    box.fill.Size = max - min
+                    box.fill.Color = esplib.box.fill
+                    box.fill.Visible = true
+
+                    for _, line in ipairs(box.corner_fill) do
+                        line.Visible = false
+                    end
+                    for _, line in ipairs(box.corner_outline) do
+                        line.Visible = false
+                    end
+
+                elseif esplib.box.type == "corner" then
+                    local fill_lines = box.corner_fill
+                    local outline_lines = box.corner_outline
+                    local fill_color = esplib.box.fill
+                    local outline_color = esplib.box.outline
+
+                    local corners = {
+                        { Vector2.new(x, y), Vector2.new(x + len, y) },
+                        { Vector2.new(x, y), Vector2.new(x, y + len) },
+
+                        { Vector2.new(x + w - len, y), Vector2.new(x + w, y) },
+                        { Vector2.new(x + w, y), Vector2.new(x + w, y + len) },
+
+                        { Vector2.new(x, y + h), Vector2.new(x + len, y + h) },
+                        { Vector2.new(x, y + h - len), Vector2.new(x, y + h) },
+
+                        { Vector2.new(x + w - len, y + h), Vector2.new(x + w, y + h) },
+                        { Vector2.new(x + w, y + h - len), Vector2.new(x + w, y + h) },
+                    }
+
+                    for i = 1, 8 do
+                        local from, to = corners[i][1], corners[i][2]
+                        local dir = (to - from).Unit
+                        local oFrom = from - dir
+                        local oTo = to + dir
+
+                        local o = outline_lines[i]
+                        o.From = oFrom
+                        o.To = oTo
+                        o.Color = outline_color
+                        o.Visible = true
+
+                        local f = fill_lines[i]
+                        f.From = from
+                        f.To = to
+                        f.Color = fill_color
+                        f.Visible = true
+                    end
+
+                    box.outline.Visible = false
+                    box.fill.Visible = false
+                end
             else
-                data.box.outline.Visible = false
-                data.box.fill.Visible = false
+                box.outline.Visible = false
+                box.fill.Visible = false
+                for _, line in ipairs(box.corner_fill) do
+                    line.Visible = false
+                end
+                for _, line in ipairs(box.corner_outline) do
+                    line.Visible = false
+                end
             end
         end
 

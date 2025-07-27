@@ -14,6 +14,7 @@ if not esplib then
         box = {
             enabled = true,
             type = "normal", -- normal, corner
+            padding = 1.15,
             fill = Color3.new(1,1,1),
             outline = Color3.new(0,0,0),
         },
@@ -56,10 +57,59 @@ local function get_bounding_box(instance)
     local min, max = Vector2.new(math.huge, math.huge), Vector2.new(-math.huge, -math.huge)
     local onscreen = false
 
-    local function process_part(part)
-        local size = part.Size / 2
-        local cf = part.CFrame
-        local corners = {
+    if instance:IsA("Model") then
+        for _, p in ipairs(instance:GetChildren()) do
+            if p:IsA("BasePart") then
+                local size = (p.Size / 2) * esplib.box.padding
+                local cf = p.CFrame
+                for _, offset in ipairs({
+                    Vector3.new( size.X,  size.Y,  size.Z),
+                    Vector3.new(-size.X,  size.Y,  size.Z),
+                    Vector3.new( size.X, -size.Y,  size.Z),
+                    Vector3.new(-size.X, -size.Y,  size.Z),
+                    Vector3.new( size.X,  size.Y, -size.Z),
+                    Vector3.new(-size.X,  size.Y, -size.Z),
+                    Vector3.new( size.X, -size.Y, -size.Z),
+                    Vector3.new(-size.X, -size.Y, -size.Z),
+                }) do
+                    local pos, visible = camera:WorldToViewportPoint(cf:PointToWorldSpace(offset))
+                    if visible then
+                        local v2 = Vector2.new(pos.X, pos.Y)
+                        min = min:Min(v2)
+                        max = max:Max(v2)
+                        onscreen = true
+                    end
+                end
+            elseif p:IsA("Accessory") then
+                local handle = p:FindFirstChild("Handle")
+                if handle and handle:IsA("BasePart") then
+                    local size = (handle.Size / 2) * esplib.box.padding
+                    local cf = handle.CFrame
+                    for _, offset in ipairs({
+                        Vector3.new( size.X,  size.Y,  size.Z),
+                        Vector3.new(-size.X,  size.Y,  size.Z),
+                        Vector3.new( size.X, -size.Y,  size.Z),
+                        Vector3.new(-size.X, -size.Y,  size.Z),
+                        Vector3.new( size.X,  size.Y, -size.Z),
+                        Vector3.new(-size.X,  size.Y, -size.Z),
+                        Vector3.new( size.X, -size.Y, -size.Z),
+                        Vector3.new(-size.X, -size.Y, -size.Z),
+                    }) do
+                        local pos, visible = camera:WorldToViewportPoint(cf:PointToWorldSpace(offset))
+                        if visible then
+                            local v2 = Vector2.new(pos.X, pos.Y)
+                            min = min:Min(v2)
+                            max = max:Max(v2)
+                            onscreen = true
+                        end
+                    end
+                end
+            end
+        end
+    elseif instance:IsA("BasePart") then
+        local size = (instance.Size / 2)
+        local cf = instance.CFrame
+        for _, offset in ipairs({
             Vector3.new( size.X,  size.Y,  size.Z),
             Vector3.new(-size.X,  size.Y,  size.Z),
             Vector3.new( size.X, -size.Y,  size.Z),
@@ -68,8 +118,7 @@ local function get_bounding_box(instance)
             Vector3.new(-size.X,  size.Y, -size.Z),
             Vector3.new( size.X, -size.Y, -size.Z),
             Vector3.new(-size.X, -size.Y, -size.Z),
-        }
-        for _, offset in ipairs(corners) do
+        }) do
             local pos, visible = camera:WorldToViewportPoint(cf:PointToWorldSpace(offset))
             if visible then
                 local v2 = Vector2.new(pos.X, pos.Y)
@@ -78,16 +127,6 @@ local function get_bounding_box(instance)
                 onscreen = true
             end
         end
-    end
-
-    if instance:IsA("Model") then
-        for _, obj in ipairs(instance:GetDescendants()) do
-            if obj:IsA("BasePart") then
-                process_part(obj)
-            end
-        end
-    elseif instance:IsA("BasePart") then
-        process_part(instance)
     end
 
     return min, max, onscreen

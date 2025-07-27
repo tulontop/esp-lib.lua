@@ -52,6 +52,7 @@ getgenv().esplib = {
     box = {
         enabled = true,
         type = "normal", -- normal, corner
+        padding = 1.15,
         fill = Color3.new(1,1,1),
         outline = Color3.new(0,0,0),
     },
